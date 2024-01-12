@@ -176,7 +176,15 @@ python manage.py migrate
 After creating a Model, especially one that relates to another, it's always a good idea to test drive the Model and relationships in the shell.
 
 ## 5. Create Serializer
-TBU
+
+Next, we'll set up our feeding serializer in the serializers.py file:
+
+```python
+class FeedingSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Feeding
+    fields = '__all__'
+```
 
 ## 6. Add `Feeding` to the Admin Portal
 
@@ -240,14 +248,51 @@ Therefore, we need to ensure that the route includes a URL parameter for capturi
 
 urlpatterns = [
 	...
-    path('cats/<int:cat_id>/add_feeding/', views.add_feeding, name='add_feeding'),
+	path('cats/<int:cat_id>/feedings/', FeedingListCreate.as_view(), name='feeding-list-create'),
+	path('cats/<int:cat_id>/feedings/<int:id>/', FeedingDetail.as_view(), name='feeding-detail'),
 ]
 ```
 
-Now we can create the view logic that matches the new route; let's go there now...
+Don't forget to import the views FeedingListCreate and FeedingDetail - they don't exist yet but we will create them now.
 
 ### Generating our View Logic
-TBU
+
+Let's start with the FeedingListCreate view and then break down the syntax:
+
+```python
+class FeedingListCreate(generics.ListCreateAPIView):
+  serializer_class = FeedingSerializer
+
+  def get_queryset(self):
+    cat_id = self.kwargs['cat_id']
+    return Feeding.objects.filter(cat_id=cat_id)
+```
+
+This looks a little different then our CatList CBV (Class-based View). Notice the ```get_queryset``` method.
+
+Although both CBV's inherit from the REST framework ListCreateAPIView generics, the CatList view is set to **Cat.objects.all()** as the default queryset for this view. It means every time we access this view, it will list all objects in the Cat model. This is straightforward because we want to list all cats, regardless of any other conditions or filters.
+
+For the FeedingListCreate view however, we want to filter the feedings based on the cat_id provided in the URL. This means we can't use a static queryset; we need a way to dynamically filter the feedings based on the cat they belong to - which is why we override the **get_queryset** method.
+
+This design pattern is common in Django REST framework when you need to provide different querysets based on the request's context or parameters.
+
+And now for the remaining view:
+
+```python
+class FeedingDetail(generics.RetrieveUpdateDestroyAPIView):
+  serializer_class = FeedingSerializer
+  lookup_field = 'id'
+
+  def get_queryset(self):
+    cat_id = self.kwargs['cat_id']
+    return Feeding.objects.filter(cat_id=cat_id)
+```
+
+By now the code above should slowly start to make a bit more sense - the more reps the better we solidy our understanding.
+
+Don't forget to import the Feeding model and serializer!
+
+> 💡 This is a good place to stop and test the new endpoints on Postman.
 
 ### Ordering Feedings
 
@@ -290,7 +335,7 @@ Assuming a `Author --< Book` relationship, answer the following three questions.
 
 <details>
 <summary>
-(3) Which Model gets the <code>ForeignKey</code> field and what's a good name for that attribute?
+(2) Which Model gets the <code>ForeignKey</code> field and what's a good name for that attribute?
 </summary>
 <hr>
 
@@ -305,7 +350,7 @@ author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 <details>
 <summary>
-(5) How would we access a <code>book</code> object's author object?
+(3) How would we access a <code>book</code> object's author object?
 </summary>
 <hr>
 
@@ -334,7 +379,6 @@ Let's add a one line method to the `Cat` Model class:
 
 ```python
 from django.db import models
-from django.urls import reverse
 # add this import
 from datetime import date
 
@@ -348,6 +392,29 @@ class Cat(models.Model):
 Be sure to add the import at the top of _models.py_.
 
 The `fed_for_today` method demonstrates the use of `filter()` to obtain a `<QuerySet>` for today's feedings, then `count()` is chained on to the query to return the actual number of objects returned.
+
+Considering we are building a RESTful API, we should include the result of the fed_for_today method in our JSON response when querying Cat instances. In order to do that, we need to modify our **CatSerializer** to include this information. Here's how we do that:
+
+```python
+class CatSerializer(serializers.ModelSerializer):
+  fed_for_today = serializers.SerializerMethodField() # add this line
+
+  class Meta:
+    model = Cat
+    fields = '__all__'
+  
+  # add method below
+  def get_fed_for_today(self, obj):
+    return obj.fed_for_today()
+
+```
+
+In this setup:
+
+- fed_for_today is a custom field added to CatSerializer.
+- get_fed_for_today takes the Cat instance (obj) as an argument and returns the result of the fed_for_today method on that instance.
+
+When you serialize a Cat instance using this modified CatSerializer, it will include the fed_for_today field in the JSON response, which will be either True or False depending on whether the cat has been fed for all meal times on the current day.
 
 Congrats on using a custom Model method to implement business logic!
 
