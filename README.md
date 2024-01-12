@@ -213,7 +213,7 @@ In `main_app/models.py`, add the desired user-friendly label to the field-type l
 ```python
 class Feeding(models.Model):
   # the first optional positional argument overrides the label
-  date = models.DateField('feeding date')
+  date = models.DateField('Feeding Date')
   ...
 ```
 
