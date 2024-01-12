@@ -20,7 +20,7 @@
 
 This lesson continues to build-out Cat Collector right where the [_Django Modeles and Serializers_](https://git.generalassemb.ly/SEB-Base-Curriculum/django-models-serializers) lesson left off.
 
-Navigate to the catcollector directory, enter your virtual environment ```pipenv shell```, then start the web server with `python manage.py runserver`.
+Navigate to the django-catcollector directory, enter your virtual environment ```pipenv shell```, then start the web server with `python manage.py runserver`.
 
 ## 2. A Cat's Got to Eat!
 
