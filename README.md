@@ -157,7 +157,7 @@ In a one-to-many relationship, the `on_delete=models.CASCADE` is required.  It e
 We added/updated a new Model, so it's that time again...
 
 ```
-python3 manage.py makemigrations
+python manage.py makemigrations
 ```
 
 <details>
@@ -167,7 +167,7 @@ python3 manage.py makemigrations
 <hr>
 
 ```
-python3 manage.py migrate
+python manage.py migrate
 ```
 
 <hr>
