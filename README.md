@@ -184,7 +184,10 @@ class FeedingSerializer(serializers.ModelSerializer):
   class Meta:
     model = Feeding
     fields = '__all__'
+    read_only_fields = ('cat',)
 ```
+
+We set `read_only=True` for the cat field so that the cat_id is not required in the body of a POST request, but rather taken from the url parameter (which we have yet to write).
 
 ## 6. Add `Feeding` to the Admin Portal
 
