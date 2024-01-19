@@ -187,7 +187,7 @@ class FeedingSerializer(serializers.ModelSerializer):
     read_only_fields = ('cat',)
 ```
 
-We set `read_only=True` for the cat field so that the cat_id is not required in the body of a POST request, but rather taken from the url parameter (which we have yet to write).
+We have configured the `cat` field as `read_only=True` to eliminate the necessity of including the `cat_id` in the body of a POST request during the creation of a feeding. Instead, this value will be derived from the URL parameter, a method we are yet to implement. This approach streamlines the process and ensures a more intuitive and cleaner data submission.
 
 ## 6. Add `Feeding` to the Admin Portal
 
