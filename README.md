@@ -260,7 +260,7 @@ Don't forget to import the views FeedingListCreate and FeedingDetail - they don'
 
 ### Generating our View Logic
 
-Let's start with the FeedingListCreate view and then break down the syntax:
+The `FeedingListCreate` class, a Class-based View (CBV), represents a nuanced implementation in comparison to our `CatList` view. Both CBVs extend from the REST framework's `ListCreateAPIView` generics, but they serve distinct purposes and exhibit differing behaviors in data retrieval and handling.
 
 ```python
 class FeedingListCreate(generics.ListCreateAPIView):
@@ -269,13 +269,18 @@ class FeedingListCreate(generics.ListCreateAPIView):
   def get_queryset(self):
     cat_id = self.kwargs['cat_id']
     return Feeding.objects.filter(cat_id=cat_id)
+
+  def perform_create(self, serializer):
+    cat_id = self.kwargs['cat_id']
+    cat = Cat.objects.get(id=cat_id)
+    serializer.save(cat=cat)
 ```
 
-This looks a little different then our CatList CBV (Class-based View). Notice the ```get_queryset``` method.
+In the case of the `CatList` view, we employ a straightforward approach by setting the queryset to `Cat.objects.all()`. This configuration is apt for scenarios where the goal is to retrieve a comprehensive list of all cat instances, without applying any specific filters.
 
-Although both CBV's inherit from the REST framework ListCreateAPIView generics, the CatList view is set to **Cat.objects.all()** as the default queryset for this view. It means every time we access this view, it will list all objects in the Cat model. This is straightforward because we want to list all cats, regardless of any other conditions or filters.
+However, the `FeedingListCreate` view necessitates a more tailored approach to data retrieval. The objective here is to display feedings that are associated with a specific cat, identified by the `cat_id` present in the URL. To accommodate this requirement, we override the `get_queryset` method. This alteration ensures that the queryset dynamically adapts to include only those feeding instances that correspond to the specified `cat_id`.
 
-For the FeedingListCreate view however, we want to filter the feedings based on the cat_id provided in the URL. This means we can't use a static queryset; we need a way to dynamically filter the feedings based on the cat they belong to - which is why we override the **get_queryset** method.
+Moreover, the introduction of the `perform_create` method adds another layer of specificity. This method is pivotal during the creation of new feeding instances. It meticulously extracts the `cat_id` from the URL parameters and fetches the corresponding `Cat` instance. Subsequently, it associates this instance with the new feeding record being created. This method ensures the correct association between related entities, in this context, ensuring that feedings are accurately linked to their respective cats.
 
 This design pattern is common in Django REST framework when you need to provide different querysets based on the request's context or parameters.
 
