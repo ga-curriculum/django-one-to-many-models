@@ -18,7 +18,7 @@
 
 ## 1. Setup
 
-This lesson continues to build-out Cat Collector right where the [_Django Modeles and Serializers_](https://git.generalassemb.ly/SEB-Base-Curriculum/django-models-serializers) lesson left off.
+This lesson continues to build-out Cat Collector right where the [_Django Modeles and Serializers_](https://github.com/ga-curriculum/django-models-serializers) lesson left off.
 
 Navigate to the django-catcollector directory, enter your virtual environment ```pipenv shell```, then start the web server with `python manage.py runserver`.
 
